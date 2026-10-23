@@ -1,13 +1,13 @@
 package pl.eked.lab.banking;
 
 public class BankAccount {
-    private final int balance;
+    private int balance;
 
     public BankAccount(int balance) {
         this.balance = balance;
     }
 
-    public boolean withdraw(int amount) {
+    public synchronized boolean withdraw(int amount) {
         if (amount < 0) {
             return false;
         }
@@ -16,10 +16,12 @@ public class BankAccount {
             return false;
         }
 
+        this.balance = this.balance - amount;
+
         return true;
     }
 
-    public int getBalance() {
+    public synchronized int getBalance() {
         return balance;
     }
 }

@@ -96,6 +96,7 @@ A withdrawal must be rejected if the requested amount exceeds the account's avai
 - [ ] A withdrawal within the available funds is accepted.
 - [ ] A withdrawal exceeding the available funds is rejected.
 - [ ] A rejected withdrawal does not modify the account balance.
+- [ ] A withdrawal amount must be greater than zero. Withdrawals with zero or negative amounts must be rejected without modifying the account balance.
 
 ### BR-002 — Daily Transaction Limits
 
