@@ -92,7 +92,7 @@ class BankAccountTest {
         this.bankAccount = new BankAccount(balance);
 
         //when
-        var isDepositSuccessful = bankAccount.deposit(0);
+        var isDepositSuccessful = bankAccount.deposit(1);
         var result = bankAccount.getBalance();
 
         //when & then
