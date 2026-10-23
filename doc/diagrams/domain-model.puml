@@ -1,0 +1,95 @@
+
+@startuml
+title Banking Concurrency Simulator - Domain Model (Draft)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty methods
+
+class BankAccount {
+    - accountNumber: AccountNumber
+    - balance: Money
+    - overdraftLimit: Money
+}
+
+class AccountOwner {
+    - ownerId: OwnerId
+    - firstName: String
+    - lastName: String
+}
+
+class Transaction {
+    - transactionId: TransactionId
+    - amount: Money
+    - type: TransactionType
+    - status: TransactionStatus
+    - createdAt: Instant
+}
+
+class TransactionReservation {
+    - transactionId: TransactionId
+    - amount: Money
+    - status: ReservationStatus
+}
+
+class TransactionHistory {
+    + accountNumber: AccountNumber
+}
+
+class TransactionAuditLog {
+}
+
+enum TransactionType {
+    ATM_WITHDRAWAL
+    ATM_DEPOSIT
+    ONLINE_TRANSFER
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    REJECTED
+}
+
+enum ReservationStatus {
+    ACTIVE
+    SETTLED
+    RELEASED
+}
+
+BankAccount "0..*" -- "1..*" AccountOwner : owners
+BankAccount "1" -- "0..*" TransactionReservation : reservations
+BankAccount "1" -- "0..*" Transaction : operations
+
+Transaction "1" -- "0..1" TransactionReservation : reservation
+
+Transaction --> TransactionType
+Transaction --> TransactionStatus
+TransactionReservation --> ReservationStatus
+
+TransactionHistory ..> Transaction : reads
+TransactionAuditLog ..> Transaction : records attempts
+
+note right of BankAccount
+  Account balance and overdraft
+  are independent of transaction history.
+
+  Available funds =
+    balance
+    + overdraftLimit
+    - active reservations
+end note
+
+note bottom of TransactionHistory
+  Conceptual responsibility.
+  Not necessarily a domain entity.
+end note
+
+note bottom of TransactionAuditLog
+  Internal records, including
+  rejected transaction attempts.
+  Not exposed to customers.
+end note
+
+@enduml

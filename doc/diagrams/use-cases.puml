@@ -1,0 +1,15 @@
+@startuml
+actor "ATM" as ATM
+actor "Online Banking" as Online
+
+rectangle "Banking Simulator" {
+    usecase "Check Balance" as UC1
+    usecase "Withdraw Money" as UC2
+    usecase "Deposit Money" as UC3
+}
+
+ATM --> UC1
+ATM --> UC2
+ATM --> UC3
+Online --> UC1
+@enduml
