@@ -7,16 +7,23 @@ public class BankAccount {
         this.balance = balance;
     }
 
+    public synchronized boolean deposit(int amount) {
+        if (amount <= 0)
+            return false;
+
+        balance = Math.addExact(balance, amount);
+
+        return true;
+    }
+
     public synchronized boolean withdraw(int amount) {
-        if (amount < 0) {
+        if (amount <= 0)
             return false;
-        }
 
-        if (amount > balance) {
+        if (amount > balance)
             return false;
-        }
 
-        this.balance = this.balance - amount;
+        this.balance -= amount;
 
         return true;
     }
