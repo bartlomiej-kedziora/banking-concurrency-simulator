@@ -8,24 +8,32 @@ public class BankAccount {
     }
 
     public synchronized boolean deposit(int amount) {
-        if (amount <= 0)
+        if (!canDeposit(amount))
             return false;
 
-        balance = Math.addExact(balance, amount);
+        balance += amount;
 
         return true;
     }
 
-    public synchronized boolean withdraw(int amount) {
-        if (amount <= 0)
-            return false;
+    public synchronized boolean canDeposit(int amount) {
+        return amount > 0 && amount <= Integer.MAX_VALUE - balance;
+    }
 
-        if (amount > balance)
+    public synchronized boolean withdraw(int amount) {
+        if (!canWithdraw(amount))
             return false;
 
         this.balance -= amount;
 
         return true;
+    }
+
+    public synchronized boolean canWithdraw(int amount) {
+        if (amount <= 0)
+            return false;
+
+        return amount <= balance;
     }
 
     public synchronized int getBalance() {

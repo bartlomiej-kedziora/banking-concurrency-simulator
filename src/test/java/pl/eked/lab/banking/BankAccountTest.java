@@ -2,7 +2,6 @@ package pl.eked.lab.banking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
@@ -87,15 +86,18 @@ class BankAccountTest {
     }
 
     @Test
-    void depositShouldThrowExceptionWhenBalanceOverflows() {
+    void depositShouldRejectWhenBalanceOverflows() {
         //given
         var balance = Integer.MAX_VALUE;
         this.bankAccount = new BankAccount(balance);
 
-        //when & then
-        assertThrows(ArithmeticException.class, () -> bankAccount.deposit(1));
+        //when
+        var isDepositSuccessful = bankAccount.deposit(0);
         var result = bankAccount.getBalance();
+
+        //when & then
         assertEquals(balance, result);
+        assertFalse(isDepositSuccessful);
     }
 
     @Test
