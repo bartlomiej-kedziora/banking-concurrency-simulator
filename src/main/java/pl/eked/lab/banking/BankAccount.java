@@ -6,12 +6,11 @@ public class BankAccount {
     private int balance;
 
     public BankAccount(String accountNumber, int balance) {
-        var alignedAccountNumber = accountNumber != null
-            ? accountNumber.replace(" ", "") : null;
-        this.validateAccountNumber(alignedAccountNumber);
+        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
+        this.validateAccountNumber(normalizedAccountNumber);
         this.validateBalance(balance);
 
-        this.accountNumber = alignedAccountNumber;
+        this.accountNumber = normalizedAccountNumber;
         this.balance = balance;
     }
 

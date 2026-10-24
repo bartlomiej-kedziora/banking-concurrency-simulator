@@ -13,20 +13,26 @@ public class BankAccountRepository {
         if (accountNumber == null || accountNumber.isEmpty())
             return false;
 
-        var exists = this.exists(accountNumber);
+        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
+
+        var exists = this.exists(normalizedAccountNumber);
         if (exists) {
             return false;
         }
 
-        this.bankAccounts.put(accountNumber, new BankAccount(accountNumber, initialBalance));
+        this.bankAccounts.put(normalizedAccountNumber,
+            new BankAccount(normalizedAccountNumber, initialBalance));
+
         return true;
     }
 
     public synchronized boolean exists(String accountNumber) {
-        return this.bankAccounts.containsKey(accountNumber);
+        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
+        return this.bankAccounts.containsKey(normalizedAccountNumber);
     }
 
     public synchronized BankAccount findByAccountNumber(String accountNumber) {
-        return this.bankAccounts.get(accountNumber);
+        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
+        return this.bankAccounts.get(normalizedAccountNumber);
     }
 }
