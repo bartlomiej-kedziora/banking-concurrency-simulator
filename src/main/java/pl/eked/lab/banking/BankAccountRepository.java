@@ -13,13 +13,12 @@ public class BankAccountRepository {
         if (accountNumber == null || accountNumber.isEmpty())
             return false;
 
-        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
-
-        var exists = this.exists(normalizedAccountNumber);
+        var exists = this.exists(accountNumber);
         if (exists) {
             return false;
         }
 
+        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
         this.bankAccounts.put(normalizedAccountNumber,
             new BankAccount(normalizedAccountNumber, initialBalance));
 
