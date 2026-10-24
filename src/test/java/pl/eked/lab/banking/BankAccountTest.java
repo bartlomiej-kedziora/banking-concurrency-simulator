@@ -1,20 +1,52 @@
 package pl.eked.lab.banking;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class BankAccountTest {
     private BankAccount bankAccount;
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(
+        strings = {
+            "1",
+            "PL 2222 3333 4444 5555 6666 7777",
+            "00 2222 3333 4444 5555 6666 777",
+            "00 2222 3333 4444 5555 6666 7777 8",
+        }
+    )
+    void shouldRejectInvalidAccountNumber(String accountNumber) {
+        //given & when & then
+        assertThrows(IllegalArgumentException.class, () -> new BankAccount(accountNumber, 1));
+    }
+
+    @Test
+    void shouldRejectNegativeInitialBalance() {
+        //given & when & then
+        assertThrows(IllegalArgumentException.class, () -> new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1));
+    }
+
+    @Test
+    void shouldCreateAccountWithZeroBalance() {
+        //given & when & then
+        assertDoesNotThrow(() -> new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, 0));
+    }
 
     @Test
     void withdrawShouldReduceBalanceWhenFundsAreSufficient() {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(700);
@@ -29,7 +61,7 @@ class BankAccountTest {
     void withdrawShouldNotChangeBalanceWhenFundsAreInsufficient() {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(1200);
@@ -44,7 +76,7 @@ class BankAccountTest {
     void withdrawShouldRejectZeroAmount() {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(0);
@@ -59,7 +91,7 @@ class BankAccountTest {
     void depositShouldIncreaseBalanceWhenAmountIsPositive() {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isDepositSuccessful = bankAccount.deposit(500);
@@ -74,7 +106,7 @@ class BankAccountTest {
     void depositShouldRejectZeroAmount() {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isDepositSuccessful = bankAccount.deposit(0);
@@ -89,7 +121,7 @@ class BankAccountTest {
     void depositShouldRejectWhenBalanceOverflows() {
         //given
         var balance = Integer.MAX_VALUE;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         //when
         var isDepositSuccessful = bankAccount.deposit(1);
@@ -104,7 +136,7 @@ class BankAccountTest {
     void concurrentWithdrawalsShouldNotOverdrawAccount() throws InterruptedException {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskA =
             new Fixtures.BankAccountWithdrawTask(bankAccount, 700);
@@ -135,7 +167,7 @@ class BankAccountTest {
     void concurrentDepositsShouldIncreaseBalanceCorrectly() throws InterruptedException {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
             new Fixtures.BankAccountDepositTask(bankAccount, 500);
@@ -164,7 +196,7 @@ class BankAccountTest {
     void concurrentDepositAndWithdrawalShouldPreserveBalance() throws InterruptedException {
         //given
         var balance = 1000;
-        this.bankAccount = new BankAccount(balance);
+        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
             new Fixtures.BankAccountDepositTask(bankAccount, 500);
@@ -190,6 +222,7 @@ class BankAccountTest {
     }
 
     private static class Fixtures {
+        private static final String VALID_ACCOUNT_NUMBER = "12 3456 7890 1234 5678 9012 3456";
         private static class BankAccountDepositTask implements Runnable {
             private final BankAccount bankAccount;
             private final int amount;
