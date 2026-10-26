@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import pl.eked.lab.banking.domain.AccountNumber;
 
-class BankAccountRepositoryTest {
+class InMemoryBankAccountRepositoryTest {
 
-    private final BankAccountRepository repository = new BankAccountRepository();
+    private final InMemoryBankAccountRepository repository = new InMemoryBankAccountRepository();
 
     @Nested
     class Creation {

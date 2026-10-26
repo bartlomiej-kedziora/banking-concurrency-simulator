@@ -1,14 +1,14 @@
-package pl.eked.lab.banking.application;
+package pl.eked.lab.banking.application.transfer;
 
 import pl.eked.lab.banking.domain.AccountNumber;
-import pl.eked.lab.banking.persistence.BankAccountRepository;
+import pl.eked.lab.banking.persistence.InMemoryBankAccountRepository;
 
 public class BankTransferService {
-    private final BankAccountRepository repository;
+    private final InMemoryBankAccountRepository repository;
     private final TransferExecutor transferExecutor;
 
     public BankTransferService(
-        BankAccountRepository repository,
+        InMemoryBankAccountRepository repository,
         TransferExecutor transferExecutor
     ) {
         this.repository = repository;

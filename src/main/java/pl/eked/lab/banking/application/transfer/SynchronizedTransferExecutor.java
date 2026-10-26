@@ -1,12 +1,14 @@
-package pl.eked.lab.banking.concurrency;
+package pl.eked.lab.banking.application.transfer;
 
-import pl.eked.lab.banking.application.TransferExecutor;
+import java.util.Objects;
 import pl.eked.lab.banking.domain.BankAccount;
 
 public class SynchronizedTransferExecutor implements TransferExecutor {
 
     @Override
     public boolean execute(BankAccount fromAccount, BankAccount toAccount, int amount) {
+        validateAccounts(fromAccount, toAccount);
+
         var lockOrder = LockOrder.of(fromAccount, toAccount); // prevent deadlock
 
         synchronized (lockOrder.first()) {
@@ -26,6 +28,14 @@ public class SynchronizedTransferExecutor implements TransferExecutor {
                 return true;
             }
         }
+    }
+
+    private void validateAccounts(BankAccount fromAccount, BankAccount toAccount) {
+        Objects.requireNonNull(fromAccount, "fromAccount must not be null");
+        Objects.requireNonNull(toAccount, "toAccount must not be null");
+
+        if (fromAccount.getAccountNumber().equals(toAccount.getAccountNumber()))
+            throw new IllegalArgumentException("Source and destination accounts must be different");
     }
 
     private record LockOrder(

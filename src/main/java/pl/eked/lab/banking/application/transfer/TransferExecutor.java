@@ -1,4 +1,4 @@
-package pl.eked.lab.banking.application;
+package pl.eked.lab.banking.application.transfer;
 
 import pl.eked.lab.banking.domain.BankAccount;
 
