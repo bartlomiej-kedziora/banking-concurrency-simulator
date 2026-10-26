@@ -1,16 +1,13 @@
 package pl.eked.lab.banking;
 
 public class BankAccount {
-    private static final String ACCOUNT_NUMBER_REGEX = "^\\d{26}$";
-    private final String accountNumber;
+    private final AccountNumber accountNumber;
     private int balance;
 
-    public BankAccount(String accountNumber, int balance) {
-        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
-        this.validateAccountNumber(normalizedAccountNumber);
+    public BankAccount(AccountNumber accountNumber, int balance) {
+        this.validateAccountNumber(accountNumber);
         this.validateBalance(balance);
-
-        this.accountNumber = normalizedAccountNumber;
+        this.accountNumber = accountNumber;
         this.balance = balance;
     }
 
@@ -43,7 +40,7 @@ public class BankAccount {
         return amount <= balance;
     }
 
-    public String getAccountNumber() {
+    public AccountNumber getAccountNumber() {
         return accountNumber;
     }
 
@@ -51,9 +48,9 @@ public class BankAccount {
         return balance;
     }
 
-    private void validateAccountNumber(String accountNumber) {
-        if (accountNumber == null || !accountNumber.matches(ACCOUNT_NUMBER_REGEX))
-            throw new IllegalArgumentException("Invalid account number, should contains 26 digits");
+    private void validateAccountNumber(AccountNumber accountNumber) {
+        if (accountNumber == null)
+            throw new IllegalArgumentException("Account number cannot be null");
     }
 
     private void validateBalance(int balance) {

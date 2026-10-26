@@ -17,6 +17,21 @@ class BankAccountTest {
 
     @ParameterizedTest
     @NullAndEmptySource
+    void shouldRejectNullOrEmptyAccountNumber(String accountNumber) {
+        // given
+        var givenBalance = 1;
+        var expectedErrorMsg = "Account number cannot be null or empty";
+
+        //when & then
+        var exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> new BankAccount(new AccountNumber(accountNumber), givenBalance)
+        );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
+    }
+
+    @ParameterizedTest
     @ValueSource(
         strings = {
             "1",
@@ -26,27 +41,51 @@ class BankAccountTest {
         }
     )
     void shouldRejectInvalidAccountNumber(String accountNumber) {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class, () -> new BankAccount(accountNumber, 1));
+        // given
+        var givenBalance = 1;
+        var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
+
+        //when & then
+        var exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> new BankAccount(new AccountNumber(accountNumber), givenBalance)
+        );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldRejectNegativeInitialBalance() {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class, () -> new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1));
+        // given
+        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        var givenBalance = -1;
+        var expectedErrorMsg = "Invalid balance";
+
+        //when & then
+        var exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> new BankAccount(new AccountNumber(givenAccountNumber), givenBalance)
+        );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldCreateAccountWithZeroBalance() {
-        //given & when & then
-        assertDoesNotThrow(() -> new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, 0));
+        // given
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 0;
+
+        //when & then
+        assertDoesNotThrow(() -> new BankAccount(givenAccountNumber, givenBalance));
     }
 
     @Test
     void withdrawShouldReduceBalanceWhenFundsAreSufficient() {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(700);
@@ -60,38 +99,41 @@ class BankAccountTest {
     @Test
     void withdrawShouldNotChangeBalanceWhenFundsAreInsufficient() {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(1200);
         var result = bankAccount.getBalance();
 
         //then
-        assertEquals(balance, result);
+        assertEquals(givenBalance, result);
         assertFalse(isWithdrawn);
     }
 
     @Test
     void withdrawShouldRejectZeroAmount() {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
 
         //when
         var isWithdrawn = bankAccount.withdraw(0);
         var result = bankAccount.getBalance();
 
         //then
-        assertEquals(balance, result);
+        assertEquals(givenBalance, result);
         assertFalse(isWithdrawn);
     }
 
     @Test
     void depositShouldIncreaseBalanceWhenAmountIsPositive() {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
 
         //when
         var isDepositSuccessful = bankAccount.deposit(500);
@@ -105,45 +147,52 @@ class BankAccountTest {
     @Test
     void depositShouldRejectZeroAmount() {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
+        var givenDeposit = 0;
 
         //when
-        var isDepositSuccessful = bankAccount.deposit(0);
+        var isDepositSuccessful = bankAccount.deposit(givenDeposit);
         var result = bankAccount.getBalance();
 
         //then
-        assertEquals(balance, result);
+        assertEquals(givenBalance, result);
         assertFalse(isDepositSuccessful);
     }
 
     @Test
     void depositShouldRejectWhenBalanceOverflows() {
         //given
-        var balance = Integer.MAX_VALUE;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = Integer.MAX_VALUE;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
+        var givenDeposit = 1;
 
         //when
-        var isDepositSuccessful = bankAccount.deposit(1);
+        var isDepositSuccessful = bankAccount.deposit(givenDeposit);
         var result = bankAccount.getBalance();
 
         //when & then
-        assertEquals(balance, result);
+        assertEquals(givenBalance, result);
         assertFalse(isDepositSuccessful);
     }
 
     @Test
     void concurrentWithdrawalsShouldNotOverdrawAccount() throws InterruptedException {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
+        var givenWithdrawA = 700;
+        var givenWithdrawB = 500;
 
         Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskA =
-            new Fixtures.BankAccountWithdrawTask(bankAccount, 700);
+            new Fixtures.BankAccountWithdrawTask(bankAccount, givenWithdrawA);
         Thread threadA = new Thread(bankAccountWithdrawTaskA);
 
         Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskB =
-            new Fixtures.BankAccountWithdrawTask(bankAccount, 500);
+            new Fixtures.BankAccountWithdrawTask(bankAccount, givenWithdrawB);
         Thread threadB = new Thread(bankAccountWithdrawTaskB);
 
         var matchExpected = Set.of(300, 500);
@@ -166,15 +215,18 @@ class BankAccountTest {
     @Test
     void concurrentDepositsShouldIncreaseBalanceCorrectly() throws InterruptedException {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
+        var givenDepositA = 500;
+        var givenDepositB = 300;
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
-            new Fixtures.BankAccountDepositTask(bankAccount, 500);
+            new Fixtures.BankAccountDepositTask(bankAccount, givenDepositA);
         Thread threadA = new Thread(bankAccountDepositTaskA);
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskB =
-            new Fixtures.BankAccountDepositTask(bankAccount, 300);
+            new Fixtures.BankAccountDepositTask(bankAccount, givenDepositB);
         Thread threadB = new Thread(bankAccountDepositTaskB);
 
         //when
@@ -195,15 +247,18 @@ class BankAccountTest {
     @Test
     void concurrentDepositAndWithdrawalShouldPreserveBalance() throws InterruptedException {
         //given
-        var balance = 1000;
-        this.bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER, balance);
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenBalance = 1000;
+        this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
+        var givenDepositA = 500;
+        var givenDepositB = 700;
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
-            new Fixtures.BankAccountDepositTask(bankAccount, 500);
+            new Fixtures.BankAccountDepositTask(bankAccount, givenDepositA);
         Thread threadA = new Thread(bankAccountDepositTaskA);
 
         Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskB =
-            new Fixtures.BankAccountWithdrawTask(bankAccount, 700);
+            new Fixtures.BankAccountWithdrawTask(bankAccount, givenDepositB);
         Thread threadB = new Thread(bankAccountWithdrawTaskB);
 
         //when

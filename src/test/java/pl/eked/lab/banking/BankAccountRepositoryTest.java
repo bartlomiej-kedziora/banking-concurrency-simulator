@@ -16,7 +16,7 @@ class BankAccountRepositoryTest {
     @Test
     void shouldCreateAccount() {
         //given
-        var givenAccountNumber = "00111122223333444455556666";
+        var givenAccountNumber = new AccountNumber("00111122223333444455556666");
         var givenInitialBalance = 1000;
 
         //when
@@ -35,7 +35,7 @@ class BankAccountRepositoryTest {
     @Test
     void shouldRejectDuplicateAccountNumber() {
         //given
-        var givenAccountNumber = "00111122223333444455556666";
+        var givenAccountNumber = new AccountNumber("00111122223333444455556666");
         var givenInitialBalance1 = 1000;
         var givenInitialBalance2 = 2000;
 
@@ -54,7 +54,7 @@ class BankAccountRepositoryTest {
     @Test
     void concurrentAccountCreationShouldAllowOnlyOneSuccess() throws InterruptedException {
         //given
-        var givenAccountNumber = "00111122223333444455556666";
+        var givenAccountNumber = new AccountNumber("00111122223333444455556666");
         var givenInitialBalance1 = 1000;
         var givenInitialBalance2 = 2000;
 
@@ -85,11 +85,11 @@ class BankAccountRepositoryTest {
     @Test
     void shouldCreateAccountWithZeroBalance() {
         //given
-        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
-        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);
         var givenInitialBalance = 0;
 
-        // when
+        //when
         var result = repository.createAccount(givenAccountNumber, givenInitialBalance);
         var foundAccount = repository.findByAccountNumber(givenAccountNumber);
 
@@ -102,41 +102,71 @@ class BankAccountRepositoryTest {
 
     @Test
     void shouldRejectNegativeInitialBalance() {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1)
+        //given
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenInitialBalance = -1;
+        var expectedErrorMsg = "Invalid balance";
+
+        //when & then
+        var exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> repository.createAccount(givenAccountNumber, givenInitialBalance)
         );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldRejectNullAccountNumber() {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount(null, 1000)
+        //given
+        AccountNumber givenAccountNumber = null;
+        var givenInitialBalance = 1000;
+        var expectedErrorMsg = "Account number cannot be null";
+
+        //when & then
+        var exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> repository.createAccount(givenAccountNumber, givenInitialBalance)
         );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldRejectEmptyAccountNumber() {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount("", 1000)
+        //given
+        var givenAccountNumber = "";
+        var givenInitialBalance = 1000;
+        var expectedErrorMsg = "Account number cannot be null or empty";
+
+        //when & then
+        var exception = assertThrows(IllegalArgumentException.class,
+            () -> repository.createAccount(new AccountNumber(givenAccountNumber), givenInitialBalance)
         );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldRejectInvalidAccountNumber() {
-        //given & when & then
-        assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount("1A", 1000)
+        //given
+        var givenAccountNumber = "1A";
+        var givenInitialBalance = 1000;
+        var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
+
+        //when & then
+        var exception = assertThrows(IllegalArgumentException.class,
+            () -> repository.createAccount(new AccountNumber(givenAccountNumber), givenInitialBalance)
         );
+
+        assertEquals(expectedErrorMsg, exception.getMessage());
     }
 
     @Test
     void shouldFindExistingAccount() {
         //given
-        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
-        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);
         var givenInitialBalance = 100;
         repository.createAccount(givenAccountNumber, givenInitialBalance);
 
@@ -152,7 +182,7 @@ class BankAccountRepositoryTest {
     @Test
     void shouldReturnNullForUnknownAccount() {
         //given
-        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
 
         //when
         var result = repository.findByAccountNumber(givenAccountNumber);
@@ -164,8 +194,8 @@ class BankAccountRepositoryTest {
     @Test
     void shouldFindAccountRegardlessOfNumberFormatting() {
         //given
-        var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
-        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenNotNormalizedAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);
         var givenInitialBalance = 100;
         repository.createAccount(givenNotNormalizedAccountNumber, givenInitialBalance);
 
@@ -181,8 +211,8 @@ class BankAccountRepositoryTest {
     @Test
     void shouldRejectDuplicateAccountNumberWithDifferentFormatting() {
         //given
-        var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
-        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenNotNormalizedAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
+        var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);
         var givenInitialBalance1 = 100;
         var givenInitialBalance2 = 200;
 

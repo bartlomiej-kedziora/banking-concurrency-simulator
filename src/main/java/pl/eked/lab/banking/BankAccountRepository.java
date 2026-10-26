@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BankAccountRepository {
-    private final Map<String, BankAccount> bankAccounts = new HashMap<>();
+    private final Map<AccountNumber, BankAccount> bankAccounts = new HashMap<>();
 
-    public synchronized boolean createAccount(String accountNumber, int initialBalance) {
+    public synchronized boolean createAccount(AccountNumber accountNumber, int initialBalance) {
         var validatedBankAccount = new BankAccount(accountNumber, initialBalance);
 
         var exists = this.exists(accountNumber);
@@ -19,13 +19,11 @@ public class BankAccountRepository {
         return true;
     }
 
-    public synchronized boolean exists(String accountNumber) {
-        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
-        return this.bankAccounts.containsKey(normalizedAccountNumber);
+    public synchronized boolean exists(AccountNumber accountNumber) {
+        return this.bankAccounts.containsKey(accountNumber);
     }
 
-    public synchronized BankAccount findByAccountNumber(String accountNumber) {
-        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
-        return this.bankAccounts.get(normalizedAccountNumber);
+    public synchronized BankAccount findByAccountNumber(AccountNumber accountNumber) {
+        return this.bankAccounts.get(accountNumber);
     }
 }
