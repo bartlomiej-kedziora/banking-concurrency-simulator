@@ -154,13 +154,13 @@ class BankAccountTest {
         threadA.join();
         threadB.join();
         var result = bankAccount.getBalance();
-        var isOnlyOneFasterWithdrawalSuccessful =
+        var isExactlyOneWithdrawalSuccessful =
             bankAccountWithdrawTaskA.isWithdrawalSuccessful() ^
                 bankAccountWithdrawTaskB.isWithdrawalSuccessful(); // XOR -> true only if both are different
 
         //then
         assertTrue(matchExpected.contains(result), "Unexpected balance: " + result);
-        assertTrue(isOnlyOneFasterWithdrawalSuccessful);
+        assertTrue(isExactlyOneWithdrawalSuccessful);
     }
 
     @Test
@@ -221,7 +221,7 @@ class BankAccountTest {
         assertTrue(isWithdrawalSuccessfulB);
     }
 
-    private static class Fixtures {
+    private static final class Fixtures {
         private static final String VALID_ACCOUNT_NUMBER = "12 3456 7890 1234 5678 9012 3456";
         private static class BankAccountDepositTask implements Runnable {
             private final BankAccount bankAccount;

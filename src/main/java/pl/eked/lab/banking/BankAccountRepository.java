@@ -13,14 +13,14 @@ public class BankAccountRepository {
         if (accountNumber == null || accountNumber.isEmpty())
             return false;
 
+        var validatedBankAccount = new BankAccount(accountNumber, initialBalance);
+
         var exists = this.exists(accountNumber);
         if (exists) {
             return false;
         }
 
-        var normalizedAccountNumber = AccountNumberNormalizer.normalize(accountNumber);
-        this.bankAccounts.put(normalizedAccountNumber,
-            new BankAccount(normalizedAccountNumber, initialBalance));
+        this.bankAccounts.put(validatedBankAccount.getAccountNumber(), validatedBankAccount);
 
         return true;
     }
