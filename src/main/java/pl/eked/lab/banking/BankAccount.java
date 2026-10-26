@@ -5,7 +5,7 @@ public class BankAccount {
     private int balance;
 
     public BankAccount(AccountNumber accountNumber, int balance) {
-        this.validateAccountNumber(accountNumber);
+        this.validateAccountNumberNotNull(accountNumber);
         this.validateBalance(balance);
         this.accountNumber = accountNumber;
         this.balance = balance;
@@ -48,9 +48,9 @@ public class BankAccount {
         return balance;
     }
 
-    private void validateAccountNumber(AccountNumber accountNumber) {
+    private void validateAccountNumberNotNull(AccountNumber accountNumber) {
         if (accountNumber == null)
-            throw new IllegalArgumentException("Account number cannot be null");
+            throw new NullPointerException("Account number cannot be null");
     }
 
     private void validateBalance(int balance) {

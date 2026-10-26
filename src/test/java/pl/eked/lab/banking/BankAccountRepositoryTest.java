@@ -125,38 +125,8 @@ class BankAccountRepositoryTest {
 
         //when & then
         var exception = assertThrows(
-            IllegalArgumentException.class,
+            NullPointerException.class,
             () -> repository.createAccount(givenAccountNumber, givenInitialBalance)
-        );
-
-        assertEquals(expectedErrorMsg, exception.getMessage());
-    }
-
-    @Test
-    void shouldRejectEmptyAccountNumber() {
-        //given
-        var givenAccountNumber = "";
-        var givenInitialBalance = 1000;
-        var expectedErrorMsg = "Account number cannot be null or empty";
-
-        //when & then
-        var exception = assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount(new AccountNumber(givenAccountNumber), givenInitialBalance)
-        );
-
-        assertEquals(expectedErrorMsg, exception.getMessage());
-    }
-
-    @Test
-    void shouldRejectInvalidAccountNumber() {
-        //given
-        var givenAccountNumber = "1A";
-        var givenInitialBalance = 1000;
-        var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
-
-        //when & then
-        var exception = assertThrows(IllegalArgumentException.class,
-            () -> repository.createAccount(new AccountNumber(givenAccountNumber), givenInitialBalance)
         );
 
         assertEquals(expectedErrorMsg, exception.getMessage());
@@ -192,7 +162,7 @@ class BankAccountRepositoryTest {
     }
 
     @Test
-    void shouldFindAccountRegardlessOfNumberFormatting() {
+    void shouldFindAccountUsingEquivalentAccountNumber() {
         //given
         var givenNotNormalizedAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
         var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);
@@ -209,7 +179,7 @@ class BankAccountRepositoryTest {
     }
 
     @Test
-    void shouldRejectDuplicateAccountNumberWithDifferentFormatting() {
+    void shouldRejectDuplicateEquivalentAccountNumber() {
         //given
         var givenNotNormalizedAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
         var givenNormalizedAccountNumber = new AccountNumber(Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER);

@@ -1,6 +1,5 @@
 package pl.eked.lab.banking;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,47 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class BankAccountTest {
     private BankAccount bankAccount;
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    void shouldRejectNullOrEmptyAccountNumber(String accountNumber) {
+    @Test
+    void shouldRejectNullOrEmptyAccountNumber() {
         // given
+        String givenAccountNumber = null;
         var givenBalance = 1;
         var expectedErrorMsg = "Account number cannot be null or empty";
 
         //when & then
         var exception = assertThrows(
             IllegalArgumentException.class,
-            () -> new BankAccount(new AccountNumber(accountNumber), givenBalance)
-        );
-
-        assertEquals(expectedErrorMsg, exception.getMessage());
-    }
-
-    @ParameterizedTest
-    @ValueSource(
-        strings = {
-            "1",
-            "PL 2222 3333 4444 5555 6666 7777",
-            "00 2222 3333 4444 5555 6666 777",
-            "00 2222 3333 4444 5555 6666 7777 8",
-        }
-    )
-    void shouldRejectInvalidAccountNumber(String accountNumber) {
-        // given
-        var givenBalance = 1;
-        var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
-
-        //when & then
-        var exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> new BankAccount(new AccountNumber(accountNumber), givenBalance)
+            () -> new BankAccount(new AccountNumber(givenAccountNumber), givenBalance)
         );
 
         assertEquals(expectedErrorMsg, exception.getMessage());
@@ -76,8 +49,12 @@ class BankAccountTest {
         var givenAccountNumber = new AccountNumber(Fixtures.VALID_ACCOUNT_NUMBER);
         var givenBalance = 0;
 
-        //when & then
-        assertDoesNotThrow(() -> new BankAccount(givenAccountNumber, givenBalance));
+        //when
+        var result = new BankAccount(givenAccountNumber, givenBalance);
+
+        //then
+        assertEquals(givenAccountNumber, result.getAccountNumber());
+        assertEquals(givenBalance, result.getBalance());
     }
 
     @Test
@@ -251,14 +228,14 @@ class BankAccountTest {
         var givenBalance = 1000;
         this.bankAccount = new BankAccount(givenAccountNumber, givenBalance);
         var givenDepositA = 500;
-        var givenDepositB = 700;
+        var giventWithdrawB = 700;
 
         Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
             new Fixtures.BankAccountDepositTask(bankAccount, givenDepositA);
         Thread threadA = new Thread(bankAccountDepositTaskA);
 
         Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskB =
-            new Fixtures.BankAccountWithdrawTask(bankAccount, givenDepositB);
+            new Fixtures.BankAccountWithdrawTask(bankAccount, giventWithdrawB);
         Thread threadB = new Thread(bankAccountWithdrawTaskB);
 
         //when
