@@ -7,12 +7,6 @@ public class BankAccountRepository {
     private final Map<String, BankAccount> bankAccounts = new HashMap<>();
 
     public synchronized boolean createAccount(String accountNumber, int initialBalance) {
-        if (initialBalance < 0)
-            return false;
-
-        if (accountNumber == null || accountNumber.isEmpty())
-            return false;
-
         var validatedBankAccount = new BankAccount(accountNumber, initialBalance);
 
         var exists = this.exists(accountNumber);

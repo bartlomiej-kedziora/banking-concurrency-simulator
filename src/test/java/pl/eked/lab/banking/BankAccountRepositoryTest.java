@@ -1,8 +1,11 @@
 package pl.eked.lab.banking;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -82,46 +85,100 @@ class BankAccountRepositoryTest {
 
     @Test
     void shouldCreateAccountWithZeroBalance() {
-
+        //given & when & then
+        assertDoesNotThrow(
+            () ->repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, 0)
+        );
     }
 
     @Test
     void shouldRejectNegativeInitialBalance() {
-
+        //given & when & then
+        assertThrows(IllegalArgumentException.class,
+            () ->repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1)
+        );
     }
 
     @Test
     void shouldRejectNullAccountNumber() {
-
+        //given & when & then
+        assertThrows(IllegalArgumentException.class,
+            () ->repository.createAccount(null, 1000)
+        );
     }
 
     @Test
     void shouldRejectEmptyAccountNumber() {
-
+        //given & when & then
+        assertThrows(IllegalArgumentException.class,
+            () ->repository.createAccount("", 1000)
+        );
     }
 
     @Test
     void shouldRejectInvalidAccountNumber() {
-
+        //given & when & then
+        assertThrows(IllegalArgumentException.class,
+            () ->repository.createAccount("1A", 1000)
+        );
     }
 
     @Test
     void shouldFindExistingAccount() {
+        //given
+        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        repository.createAccount(givenAccountNumber, 100);
 
+        //when
+        var result = repository.findByAccountNumber(givenAccountNumber);
+
+        //then
+        assertNotNull(result);
     }
 
     @Test
     void shouldReturnNullForUnknownAccount() {
+        //given
+        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
 
+        //when
+        var result = repository.findByAccountNumber(givenAccountNumber);
+
+        //then
+        assertNull(result);
     }
 
     @Test
     void shouldFindAccountRegardlessOfNumberFormatting() {
+        //given
+        var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        repository.createAccount(givenNotNormalizedAccountNumber, 100);
 
+        //when
+        var result = repository.findByAccountNumber(givenNormalizedAccountNumber);
+
+        //then
+        assertNotNull(result);
     }
 
     @Test
     void shouldRejectDuplicateAccountNumberWithDifferentFormatting() {
+        //given
+        var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
 
+        //when
+        var isAccountCreatedForNotNormalizedAccountNumber = repository.createAccount(givenNotNormalizedAccountNumber, 100);
+        var isTheSameAccountCreatedForNormalizedAccountNumber = repository.createAccount(givenNormalizedAccountNumber, 200);
+
+        //then
+        assertTrue(isAccountCreatedForNotNormalizedAccountNumber);
+        assertFalse(isTheSameAccountCreatedForNormalizedAccountNumber);
+    }
+
+    private static final class Fixtures {
+        private static final String VALID_ACCOUNT_NUMBER = "12 3456 7890 1234 5678 9012 3456";
+        private static final String NORMALIZED_VALID_ACCOUNT_NUMBER = "12345678901234567890123456";
     }
 }
