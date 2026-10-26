@@ -1,6 +1,5 @@
 package pl.eked.lab.banking;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,17 +84,27 @@ class BankAccountRepositoryTest {
 
     @Test
     void shouldCreateAccountWithZeroBalance() {
-        //given & when & then
-        assertDoesNotThrow(
-            () ->repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, 0)
-        );
+        //given
+        var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
+        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenInitialBalance = 0;
+
+        // when
+        var result = repository.createAccount(givenAccountNumber, givenInitialBalance);
+        var foundAccount = repository.findByAccountNumber(givenAccountNumber);
+
+        //then
+        assertTrue(result);
+        assertNotNull(foundAccount);
+        assertEquals(givenNormalizedAccountNumber, foundAccount.getAccountNumber());
+        assertEquals(givenInitialBalance, foundAccount.getBalance());
     }
 
     @Test
     void shouldRejectNegativeInitialBalance() {
         //given & when & then
         assertThrows(IllegalArgumentException.class,
-            () ->repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1)
+            () -> repository.createAccount(Fixtures.VALID_ACCOUNT_NUMBER, -1)
         );
     }
 
@@ -103,7 +112,7 @@ class BankAccountRepositoryTest {
     void shouldRejectNullAccountNumber() {
         //given & when & then
         assertThrows(IllegalArgumentException.class,
-            () ->repository.createAccount(null, 1000)
+            () -> repository.createAccount(null, 1000)
         );
     }
 
@@ -111,7 +120,7 @@ class BankAccountRepositoryTest {
     void shouldRejectEmptyAccountNumber() {
         //given & when & then
         assertThrows(IllegalArgumentException.class,
-            () ->repository.createAccount("", 1000)
+            () -> repository.createAccount("", 1000)
         );
     }
 
@@ -119,7 +128,7 @@ class BankAccountRepositoryTest {
     void shouldRejectInvalidAccountNumber() {
         //given & when & then
         assertThrows(IllegalArgumentException.class,
-            () ->repository.createAccount("1A", 1000)
+            () -> repository.createAccount("1A", 1000)
         );
     }
 
@@ -127,13 +136,17 @@ class BankAccountRepositoryTest {
     void shouldFindExistingAccount() {
         //given
         var givenAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
-        repository.createAccount(givenAccountNumber, 100);
+        var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenInitialBalance = 100;
+        repository.createAccount(givenAccountNumber, givenInitialBalance);
 
         //when
         var result = repository.findByAccountNumber(givenAccountNumber);
 
         //then
         assertNotNull(result);
+        assertEquals(givenNormalizedAccountNumber, result.getAccountNumber());
+        assertEquals(givenInitialBalance, result.getBalance());
     }
 
     @Test
@@ -153,13 +166,16 @@ class BankAccountRepositoryTest {
         //given
         var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
         var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
-        repository.createAccount(givenNotNormalizedAccountNumber, 100);
+        var givenInitialBalance = 100;
+        repository.createAccount(givenNotNormalizedAccountNumber, givenInitialBalance);
 
         //when
         var result = repository.findByAccountNumber(givenNormalizedAccountNumber);
 
         //then
         assertNotNull(result);
+        assertEquals(givenNormalizedAccountNumber, result.getAccountNumber());
+        assertEquals(givenInitialBalance, result.getBalance());
     }
 
     @Test
@@ -167,14 +183,20 @@ class BankAccountRepositoryTest {
         //given
         var givenNotNormalizedAccountNumber = Fixtures.VALID_ACCOUNT_NUMBER;
         var givenNormalizedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+        var givenInitialBalance1 = 100;
+        var givenInitialBalance2 = 200;
 
         //when
-        var isAccountCreatedForNotNormalizedAccountNumber = repository.createAccount(givenNotNormalizedAccountNumber, 100);
-        var isTheSameAccountCreatedForNormalizedAccountNumber = repository.createAccount(givenNormalizedAccountNumber, 200);
+        var isAccountCreatedForNotNormalizedAccountNumber = repository.createAccount(givenNotNormalizedAccountNumber, givenInitialBalance1);
+        var isTheSameAccountCreatedForNormalizedAccountNumber = repository.createAccount(givenNormalizedAccountNumber, givenInitialBalance2);
+        var foundAccount = repository.findByAccountNumber(givenNotNormalizedAccountNumber);
 
         //then
         assertTrue(isAccountCreatedForNotNormalizedAccountNumber);
         assertFalse(isTheSameAccountCreatedForNormalizedAccountNumber);
+        assertNotNull(foundAccount);
+        assertEquals(givenNormalizedAccountNumber, foundAccount.getAccountNumber());
+        assertEquals(givenInitialBalance1, foundAccount.getBalance());
     }
 
     private static final class Fixtures {
