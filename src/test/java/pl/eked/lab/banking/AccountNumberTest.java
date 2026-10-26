@@ -14,14 +14,13 @@ class AccountNumberTest {
         @Test
         void shouldCreateAccountNumberWhenFormatIsValid() {
             //given
-            var givenAccountNumber = Fixtures.UNNORMALIZED_TYPICAL_VALID_ACCOUNT_NUMBER;
-            var expectedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+            var givenAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
 
             //when
             var result = new AccountNumber(givenAccountNumber);
 
             //then
-            assertEquals(expectedAccountNumber, result.value());
+            assertEquals(givenAccountNumber, result.value());
         }
 
         @Test
@@ -30,7 +29,7 @@ class AccountNumberTest {
             String givenAccountNumber = null;
             var expectedErrorMsg = "Account number cannot be null or empty";
 
-            // when & then
+            //when & then
             var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new AccountNumber(givenAccountNumber)
@@ -45,7 +44,7 @@ class AccountNumberTest {
             var givenAccountNumber = "";
             var expectedErrorMsg = "Account number cannot be null or empty";
 
-            // when & then
+            //when & then
             var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new AccountNumber(givenAccountNumber)
@@ -57,23 +56,25 @@ class AccountNumberTest {
         @Test
         void shouldRejectWhitespaceOnlyAccountNumber() {
             //given
-            var givenAccountNumber = Fixtures.UNNORMALIZED_WITH_MANY_WHITESPACES_VALID_ACCOUNT_NUMBER;
-            var expectedAccountNumber = Fixtures.NORMALIZED_VALID_ACCOUNT_NUMBER;
+            var givenAccountNumber = Fixtures.INVALID_ACCOUNT_NUMBER_HAS_ONLY_WHITESPACES;
+            var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
 
-            //when
-            var result = new AccountNumber(givenAccountNumber);
+            //when & then
+            var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new AccountNumber(givenAccountNumber)
+            );
 
-            //then
-            assertEquals(expectedAccountNumber, result.value());
+            assertEquals(expectedErrorMsg, exception.getMessage());
         }
 
         @Test
         void shouldRejectAccountNumberWithInvalidLength() {
             // given
             var givenAccountNumber = Fixtures.INVALID_ACCOUNT_NUMBER_ONLY_25_DIGITS;
-            var expectedErrorMsg = "Invalid account number, should contains 26 digits";
+            var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
 
-            // when & then
+            //when & then
             var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new AccountNumber(givenAccountNumber)
@@ -86,9 +87,9 @@ class AccountNumberTest {
         void shouldRejectAccountNumberContainingNonDigitCharacters() {
             // given
             var givenAccountNumber = Fixtures.INVALID_ACCOUNT_NUMBER_HAS_ONE_LETTER;
-            var expectedErrorMsg = "Invalid account number, should contains 26 digits";
+            var expectedErrorMsg = "Invalid account number, must contain exactly 26 digits";
 
-            // when & then
+            //when & then
             var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new AccountNumber(givenAccountNumber)
@@ -211,10 +212,11 @@ class AccountNumberTest {
 
     private static final class Fixtures {
         private static final String UNNORMALIZED_TYPICAL_VALID_ACCOUNT_NUMBER = "12 3456 7890 1234 5678 9012 3456";
-        private static final String UNNORMALIZED_WITH_MANY_WHITESPACES_VALID_ACCOUNT_NUMBER = "         12 3456 7890    1234 5678      9012 3456    ";
+        private static final String UNNORMALIZED_WITH_MANY_WHITESPACES_VALID_ACCOUNT_NUMBER = "         12 3456 7890  \t  1234 5678      9012 3456    \n\t";
         private static final String NORMALIZED_VALID_ACCOUNT_NUMBER = "12345678901234567890123456";
         private static final String INVALID_ACCOUNT_NUMBER_ONLY_25_DIGITS = "1234567890123456789012345";
         private static final String INVALID_ACCOUNT_NUMBER_HAS_ONE_LETTER = "P1234567890123456789012345";
+        private static final String INVALID_ACCOUNT_NUMBER_HAS_ONLY_WHITESPACES = "          \t                   \n\t";
         private static final String ACCOUNT_NUMBER_SMALLER = "00 1111 2222 3333 4444 5555 6666";
         private static final String ACCOUNT_NUMBER_GREATER = "00 1111 2222 3333 4444 5555 6667";
     }

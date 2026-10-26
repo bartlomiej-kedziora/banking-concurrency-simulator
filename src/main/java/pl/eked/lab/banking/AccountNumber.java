@@ -23,7 +23,7 @@ public record AccountNumber(String value) implements Comparable<AccountNumber> {
 
     private static void validateFormat(String accountNumber) {
         if (!accountNumber.matches(ACCOUNT_NUMBER_REGEX))
-            throw new IllegalArgumentException("Invalid account number, should contains 26 digits");
+            throw new IllegalArgumentException("Invalid account number, must contain exactly 26 digits");
     }
 
     private static String normalize(String accountNumber) {
