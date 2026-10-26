@@ -158,7 +158,7 @@ class BankAccountTest {
             var isDepositSuccessful = bankAccount.deposit(givenDeposit);
             var result = bankAccount.getBalance();
 
-            //when & then
+            //then
             assertEquals(givenBalance, result);
             assertFalse(isDepositSuccessful);
         }
@@ -239,14 +239,14 @@ class BankAccountTest {
             var givenBalance = 1000;
             var bankAccount = new BankAccount(givenAccountNumber, givenBalance);
             var givenDepositA = 500;
-            var giventWithdrawB = 700;
+            var givenWithdrawB = 700;
 
             Fixtures.BankAccountDepositTask bankAccountDepositTaskA =
                 new Fixtures.BankAccountDepositTask(bankAccount, givenDepositA);
             Thread threadA = new Thread(bankAccountDepositTaskA);
 
             Fixtures.BankAccountWithdrawTask bankAccountWithdrawTaskB =
-                new Fixtures.BankAccountWithdrawTask(bankAccount, giventWithdrawB);
+                new Fixtures.BankAccountWithdrawTask(bankAccount, givenWithdrawB);
             Thread threadB = new Thread(bankAccountWithdrawTaskB);
 
             //when
