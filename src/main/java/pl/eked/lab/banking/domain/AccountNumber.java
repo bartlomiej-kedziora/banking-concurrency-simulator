@@ -1,4 +1,4 @@
-package pl.eked.lab.banking;
+package pl.eked.lab.banking.domain;
 
 public record AccountNumber(String value) implements Comparable<AccountNumber> {
     private static final String ACCOUNT_NUMBER_REGEX = "^\\d{26}$";

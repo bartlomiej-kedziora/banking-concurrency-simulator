@@ -1,4 +1,4 @@
-package pl.eked.lab.banking;
+package pl.eked.lab.banking.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import pl.eked.lab.banking.domain.AccountNumber;
 
 class BankAccountRepositoryTest {
 

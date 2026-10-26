@@ -1,4 +1,4 @@
-package pl.eked.lab.banking;
+package pl.eked.lab.banking.domain;
 
 public class BankAccount {
     private final AccountNumber accountNumber;

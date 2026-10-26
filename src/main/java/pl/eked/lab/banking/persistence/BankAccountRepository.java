@@ -1,7 +1,9 @@
-package pl.eked.lab.banking;
+package pl.eked.lab.banking.persistence;
 
 import java.util.HashMap;
 import java.util.Map;
+import pl.eked.lab.banking.domain.BankAccount;
+import pl.eked.lab.banking.domain.AccountNumber;
 
 public class BankAccountRepository {
     private final Map<AccountNumber, BankAccount> bankAccounts = new HashMap<>();

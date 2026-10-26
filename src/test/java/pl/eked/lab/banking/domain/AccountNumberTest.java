@@ -1,4 +1,4 @@
-package pl.eked.lab.banking;
+package pl.eked.lab.banking.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
