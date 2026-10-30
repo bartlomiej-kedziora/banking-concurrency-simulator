@@ -1,5 +1,6 @@
 package pl.eked.lab.banking.application.transfer;
 
+import java.util.Objects;
 import pl.eked.lab.banking.application.port.output.BankAccountRepository;
 import pl.eked.lab.banking.domain.AccountNumber;
 
@@ -16,8 +17,8 @@ public class BankTransferService {
     }
 
     boolean transferFunds(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, int amount) {
-        if (fromAccountNumber == null || toAccountNumber == null)
-            return false;
+        Objects.requireNonNull(fromAccountNumber, "Source account number must not be null");
+        Objects.requireNonNull(toAccountNumber, "Destination account number must not be null");
 
         if (fromAccountNumber.equals(toAccountNumber))
             return false;
