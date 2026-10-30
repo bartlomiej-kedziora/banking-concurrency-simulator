@@ -125,14 +125,28 @@ class SynchronizedTransferExecutorTest {
         }
 
         @Test
-        void shouldThrowIllegalArgumentExceptionWhenAccountsAreTheSame() {
+        void shouldThrowIllegalArgumentExceptionWhenAccountInstancesAreTheSameWithTheSameAccountNumber() {
             //given
-            var bankAccountA = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER_A, 1000);
+            var bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER_A, 1000);
 
             //when & then
             assertThrows(
                 IllegalArgumentException.class,
-                () -> transferExecutor.execute(bankAccountA, bankAccountA, 700)
+                () -> transferExecutor.execute(bankAccount, bankAccount, 700)
+            );
+            assertEquals(1000, bankAccount.getBalance());
+        }
+
+        @Test
+        void shouldThrowIllegalArgumentExceptionWhenAccountInstancesAreDifferentWithTheSameAccountNumber() {
+            //given
+            var bankAccountA = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER_A, 1000);
+            var bankAccountB = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER_A, 1000);
+
+            //when & then
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> transferExecutor.execute(bankAccountA, bankAccountB, 700)
             );
             assertEquals(1000, bankAccountA.getBalance());
         }
@@ -173,7 +187,7 @@ class SynchronizedTransferExecutorTest {
             var expectedBalanceB = results[1] ? 600 : 700;
             var totalBalanceAfterTransfer = bankAccountA.getBalance() + bankAccountB.getBalance();
             assertTrue(isOneTransferSuccess, "Neither transfer succeeded");
-            assertFalse(areBothTransfersSuccess, "both transfers success");
+            assertFalse(areBothTransfersSuccess, "Both transfers success");
             assertEquals(expectedBalanceA, bankAccountA.getBalance());
             assertEquals(expectedBalanceB, bankAccountB.getBalance());
             assertEquals(totalBalanceBeforeTransfer, totalBalanceAfterTransfer);
@@ -209,8 +223,8 @@ class SynchronizedTransferExecutorTest {
             assertFalse(threadB.isAlive(), "Thread B did not finish");
 
             var totalBalanceAfterTransfer = bankAccountA.getBalance() + bankAccountB.getBalance();
-            assertTrue(results[0], "transfer from A to B failed");
-            assertTrue(results[1], "transfer from B to A failed");
+            assertTrue(results[0], "Transfer from A to B failed");
+            assertTrue(results[1], "Transfer from B to A failed");
             assertEquals(expectedBalanceA, bankAccountA.getBalance());
             assertEquals(expectedBalanceB, bankAccountB.getBalance());
             assertEquals(totalBalanceBeforeTransfer, totalBalanceAfterTransfer);
