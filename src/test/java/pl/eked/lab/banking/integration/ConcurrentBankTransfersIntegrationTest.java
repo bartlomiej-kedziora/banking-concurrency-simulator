@@ -142,6 +142,16 @@ class ConcurrentBankTransfersIntegrationTest {
         assertEquals(balancesSumBeforeTransactions, balancesSumAfterTransactions);
     }
 
+    /**
+     * Transfers expectations:
+     *  _________________________________________________________________________________________________
+     * |account |init balance   |final balance  |actions                        |calculations           |
+     * -------------------------------------------------------------------------------------------------|
+     * |A       |1000           |300 or 400     |transfer to B 700 or to C 600  |1000-700 or 1000-600   |
+     * |B       |0              |700 or 0       |no transfers                   |0+700 or 0             |
+     * |C       |0              |600 or 0       |no transfers                   |0 or 0+600             |
+     * --------------------------------------------------------------------------------------------------
+     */
     @Test
     void shouldAllowOnlyOneTransferWhenConcurrentWithdrawalsExceedAvailableBalance()
         throws InterruptedException {
@@ -210,7 +220,7 @@ class ConcurrentBankTransfersIntegrationTest {
         var areBothTransfersSuccess = isTransfer1Success && isTransfer2Success;
 
         assertTrue(isOneTransferSuccess);
-        assertFalse(areBothTransfersSuccess, "Both transactions are success");
+        assertFalse(areBothTransfersSuccess, "Both transfers succeeded");
 
         var expectedAccountABalance = isTransfer1Success ? 1000 - 700 : 1000 - 600;
         var expectedAccountBBalance = isTransfer1Success ? 700 : 0;
