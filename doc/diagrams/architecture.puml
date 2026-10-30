@@ -1,0 +1,136 @@
+
+@startuml
+title Banking Concurrency Simulator - Architecture (v1)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam packageStyle rectangle
+left to right direction
+
+package "Domain" #E8F5E9 {
+    class BankAccount {
+        - accountNumber: AccountNumber
+        - balance: int
+
+        + deposit(amount: int): boolean
+        + withdraw(amount: int): boolean
+        + canDeposit(amount: int): boolean
+        + canWithdraw(amount: int): boolean
+        + getBalance(): int
+        + getAccountNumber(): AccountNumber
+    }
+
+    class AccountNumber <<record>> {
+        + value: String
+        + compareTo(other: AccountNumber): int
+    }
+
+    BankAccount *-- AccountNumber
+}
+
+package "Application" #E3F2FD {
+    class BankTransferService {
+        - repository: BankAccountRepository
+        - transferExecutor: TransferExecutor
+
+        ~ transferFunds(
+            fromAccountNumber: AccountNumber,
+            toAccountNumber: AccountNumber,
+            amount: int
+          ): boolean
+    }
+
+    interface TransferExecutor {
+        + execute(
+            fromAccount: BankAccount,
+            toAccount: BankAccount,
+            amount: int
+          ): boolean
+    }
+
+    class SynchronizedTransferExecutor {
+        + execute(
+            fromAccount: BankAccount,
+            toAccount: BankAccount,
+            amount: int
+          ): boolean
+    }
+
+    class LockOrder <<record>> {
+        + {static} of(
+            accountA: BankAccount,
+            accountB: BankAccount
+          ): LockOrder
+    }
+
+    SynchronizedTransferExecutor ..|> TransferExecutor
+    SynchronizedTransferExecutor *-- LockOrder
+}
+
+package "Application Ports" #FFF3E0 {
+    interface BankAccountRepository {
+        + createAccount(
+            accountNumber: AccountNumber,
+            initialBalance: int
+          ): boolean
+
+        + exists(
+            accountNumber: AccountNumber
+          ): boolean
+
+        + findByAccountNumber(
+            accountNumber: AccountNumber
+          ): BankAccount
+    }
+}
+
+package "Persistence" #F3E5F5 {
+    class InMemoryBankAccountRepository {
+        - accounts: Map
+
+        + createAccount(
+            accountNumber: AccountNumber,
+            initialBalance: int
+          ): boolean
+
+        + exists(
+            accountNumber: AccountNumber
+          ): boolean
+
+        + findByAccountNumber(
+            accountNumber: AccountNumber
+          ): BankAccount
+    }
+
+    InMemoryBankAccountRepository ..|> BankAccountRepository
+}
+
+BankTransferService --> BankAccountRepository : uses
+BankTransferService --> TransferExecutor : delegates
+BankTransferService ..> AccountNumber : uses
+
+SynchronizedTransferExecutor --> BankAccount : synchronizes
+LockOrder ..> AccountNumber : compares
+
+InMemoryBankAccountRepository --> BankAccount : stores
+
+note bottom of SynchronizedTransferExecutor
+    Locks both accounts in a
+    deterministic order based on
+    AccountNumber.
+
+    Validates withdrawal and deposit
+    before modifying balances.
+
+    No rollback mechanism in v1.
+end note
+
+note bottom of BankAccountRepository
+    Output port.
+
+    Application logic depends on
+    this abstraction rather than
+    a persistence implementation.
+end note
+
+@enduml

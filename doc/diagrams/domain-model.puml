@@ -1,95 +1,54 @@
 
 @startuml
-title Banking Concurrency Simulator - Domain Model (Draft)
+title Banking Concurrency Simulator - Domain Model (v1)
 
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
-hide empty methods
 
-class BankAccount {
-    - accountNumber: AccountNumber
-    - balance: Money
-    - overdraftLimit: Money
+package "Domain" {
+    class BankAccount {
+        - accountNumber: AccountNumber
+        - balance: int
+
+        + BankAccount(accountNumber: AccountNumber, balance: int)
+        + getAccountNumber(): AccountNumber
+        + getBalance(): int
+        + deposit(amount: int): boolean
+        + withdraw(amount: int): boolean
+        + canDeposit(amount: int): boolean
+        + canWithdraw(amount: int): boolean
+    }
+
+    class AccountNumber <<record>> {
+        + value: String
+
+        + AccountNumber(value: String)
+        + compareTo(other: AccountNumber): int
+    }
 }
 
-class AccountOwner {
-    - ownerId: OwnerId
-    - firstName: String
-    - lastName: String
-}
-
-class Transaction {
-    - transactionId: TransactionId
-    - amount: Money
-    - type: TransactionType
-    - status: TransactionStatus
-    - createdAt: Instant
-}
-
-class TransactionReservation {
-    - transactionId: TransactionId
-    - amount: Money
-    - status: ReservationStatus
-}
-
-class TransactionHistory {
-    + accountNumber: AccountNumber
-}
-
-class TransactionAuditLog {
-}
-
-enum TransactionType {
-    ATM_WITHDRAWAL
-    ATM_DEPOSIT
-    ONLINE_TRANSFER
-}
-
-enum TransactionStatus {
-    PENDING
-    COMPLETED
-    FAILED
-    REJECTED
-}
-
-enum ReservationStatus {
-    ACTIVE
-    SETTLED
-    RELEASED
-}
-
-BankAccount "0..*" -- "1..*" AccountOwner : owners
-BankAccount "1" -- "0..*" TransactionReservation : reservations
-BankAccount "1" -- "0..*" Transaction : operations
-
-Transaction "1" -- "0..1" TransactionReservation : reservation
-
-Transaction --> TransactionType
-Transaction --> TransactionStatus
-TransactionReservation --> ReservationStatus
-
-TransactionHistory ..> Transaction : reads
-TransactionAuditLog ..> Transaction : records attempts
+BankAccount *-- AccountNumber : identifies
 
 note right of BankAccount
-  Account balance and overdraft
-  are independent of transaction history.
+    Thread safety:
+    - Balance operations are synchronized.
+    - Negative balances are not allowed.
+    - Zero or negative transaction
+      amounts are rejected.
+    - Balance overflow is prevented.
 
-  Available funds =
-    balance
-    + overdraftLimit
-    - active reservations
+    Monetary amounts are represented
+    as int in v1.
 end note
 
-note bottom of TransactionHistory
-  Conceptual responsibility.
-  Not necessarily a domain entity.
-end note
+note right of AccountNumber
+    Immutable value object.
 
-note bottom of TransactionAuditLog
-  Internal records, including
-  rejected transaction attempts.
-  Not exposed to customers.
+    Account numbers are normalized
+    and validated as 26 digits.
+
+    Implements Comparable to support
+    deterministic lock ordering.
 end note
 
 @enduml
