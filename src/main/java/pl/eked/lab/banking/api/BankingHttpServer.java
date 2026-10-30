@@ -17,8 +17,12 @@ public class BankingHttpServer {
     private final ExecutorService executorService;
 
     public BankingHttpServer(List<RestController> restControllers) throws IOException {
+        this(restControllers, PORT);
+    }
+
+    public BankingHttpServer(List<RestController> restControllers, int port) throws IOException {
         this.httpServer = HttpServer.create();
-        this.httpServer.bind(new InetSocketAddress(IP_ADDRESS, PORT),0);
+        this.httpServer.bind(new InetSocketAddress(IP_ADDRESS, port),0);
         executorService = Executors.newFixedThreadPool(CONNECTION_POOL_SIZE);
         httpServer.setExecutor(executorService);
 
@@ -34,5 +38,9 @@ public class BankingHttpServer {
     public void stop() {
         httpServer.stop(1);
         executorService.shutdown();
+    }
+
+    public int getPort() {
+        return httpServer.getAddress().getPort();
     }
 }
