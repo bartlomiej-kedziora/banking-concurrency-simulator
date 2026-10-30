@@ -126,7 +126,7 @@ class SynchronizedTransferExecutorTest {
         }
 
         @Test
-        void shouldThrowWhenTheSameAccountsHaveSameAccountNumber() {
+        void shouldThrowWhenSourceAndDestinationAreSameInstance() {
             //given
             var bankAccount = new BankAccount(Fixtures.VALID_ACCOUNT_NUMBER_A, 1000);
 
@@ -185,12 +185,12 @@ class SynchronizedTransferExecutorTest {
             assertNotNull(results[0], "Thread A did not return a result");
             assertNotNull(results[1], "Thread B did not return a result");
 
-            var istTransferSuccess1 = results[0];
-            var istTransferSuccess2 = results[1];
-            var isOneTransferSuccess = istTransferSuccess1 || istTransferSuccess2;
-            var areBothTransfersSuccess = istTransferSuccess1 && istTransferSuccess2;
-            var expectedBalanceA = istTransferSuccess1 ? 1001 - 700 : 1001 - 600;
-            var expectedBalanceB = istTransferSuccess2 ? 600 : 700;
+            var isTransferSuccess1 = results[0];
+            var isTransferSuccess2 = results[1];
+            var isOneTransferSuccess = isTransferSuccess1 || isTransferSuccess2;
+            var areBothTransfersSuccess = isTransferSuccess1 && isTransferSuccess2;
+            var expectedBalanceA = isTransferSuccess1 ? 1001 - 700 : 1001 - 600;
+            var expectedBalanceB = isTransferSuccess2 ? 600 : 700;
             var totalBalanceAfterTransfer = bankAccountA.getBalance() + bankAccountB.getBalance();
             assertTrue(isOneTransferSuccess, "Neither transfer succeeded");
             assertFalse(areBothTransfersSuccess, "Both transfers success");
