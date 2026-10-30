@@ -16,7 +16,7 @@ public class BankTransferService {
         this.transferExecutor = transferExecutor;
     }
 
-    boolean transferFunds(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, int amount) {
+    public boolean transferFunds(AccountNumber fromAccountNumber, AccountNumber toAccountNumber, int amount) {
         Objects.requireNonNull(fromAccountNumber, "Source account number must not be null");
         Objects.requireNonNull(toAccountNumber, "Destination account number must not be null");
 

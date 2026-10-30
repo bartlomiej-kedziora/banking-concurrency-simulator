@@ -2,6 +2,7 @@ package pl.eked.lab.banking.application.transfer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -176,6 +177,7 @@ class BankTransferServiceTest {
                 NullPointerException.class,
                 () -> service.transferFunds(null, toAccountNumber, transferAmount)
             );
+
             verifyNoInteractions(bankAccountRepository);
             verifyNoInteractions(transferExecutor);
         }
@@ -191,6 +193,7 @@ class BankTransferServiceTest {
                 NullPointerException.class,
                 () -> service.transferFunds(fromAccountNumber, null, transferAmount)
             );
+
             verifyNoInteractions(bankAccountRepository);
             verifyNoInteractions(transferExecutor);
         }
@@ -205,6 +208,7 @@ class BankTransferServiceTest {
                 NullPointerException.class,
                 () -> service.transferFunds(null, null, transferAmount)
             );
+
             verifyNoInteractions(bankAccountRepository);
             verifyNoInteractions(transferExecutor);
         }
@@ -231,7 +235,8 @@ class BankTransferServiceTest {
                 IllegalStateException.class,
                 () -> service.transferFunds(fromAccountNumber, toAccountNumber, transferAmount)
             );
-            assertEquals(givenException.getMessage(), exception.getMessage());
+
+            assertSame(givenException, exception);
             verify(bankAccountRepository).findByAccountNumber(fromAccountNumber);
             verify(bankAccountRepository).findByAccountNumber(toAccountNumber);
             verify(transferExecutor).execute(fromAccount, toAccount, transferAmount);
@@ -254,7 +259,8 @@ class BankTransferServiceTest {
                 RuntimeException.class,
                 () -> service.transferFunds(fromAccountNumber, toAccountNumber, transferAmount)
             );
-            assertEquals(givenException.getMessage(), exception.getMessage());
+
+            assertSame(givenException, exception);
             verify(bankAccountRepository).findByAccountNumber(fromAccountNumber);
             verify(bankAccountRepository).findByAccountNumber(toAccountNumber);
             verifyNoInteractions(transferExecutor);
