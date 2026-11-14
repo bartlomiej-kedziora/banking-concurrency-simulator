@@ -65,10 +65,7 @@ public class HttpRouter implements HttpHandler {
             return;
         }
 
-        var requestBody = new String(
-            exchange.getRequestBody().readAllBytes(),
-            StandardCharsets.UTF_8
-        );
+        var requestBody = new String(requestBytes, StandardCharsets.UTF_8);
 //        var requestParams = exchange.getRequestURI().getRawQuery();
         var apiRequest  = new ApiRequest(requestBody, Map.of());
 
