@@ -1,30 +1,26 @@
 package pl.eked.lab.banking.api.controller;
 
-import com.sun.net.httpserver.HttpExchange;
-import java.io.IOException;
+import java.util.List;
+import pl.eked.lab.banking.api.model.ApiRequest;
 import pl.eked.lab.banking.api.model.HttpMethod;
 import pl.eked.lab.banking.api.model.HttpResponse;
-import pl.eked.lab.banking.api.response.HttpResponseWriter;
+import pl.eked.lab.banking.api.model.HttpRoute;
 
 public class HealthController implements RestController {
+    private static final String PATH = "/api/health";
 
-    @Override
-    public String getPath() {
-        return "/api/health";
+    public HttpResponse getStatus(ApiRequest request) {
+        return HttpResponse.ok("Server is up!");
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        var allowedHttpMethod = HttpMethod.GET.name();
-        if (!allowedHttpMethod.equals(exchange.getRequestMethod())) {
-            var response = HttpResponse.status(405);
-            exchange.getResponseHeaders().set("Allow", allowedHttpMethod);
-            HttpResponseWriter.write(exchange, response);
-            return;
-        }
-
-        var response = HttpResponse.ok("Server is up!");
-
-        HttpResponseWriter.write(exchange, response);
+    public List<HttpRoute> getRoutes() {
+        return List.of(
+            new HttpRoute(
+                HttpMethod.GET,
+                PATH,
+                this::getStatus
+            )
+        );
     }
 }

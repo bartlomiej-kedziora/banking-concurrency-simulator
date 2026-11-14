@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import pl.eked.lab.banking.api.BankingHttpServer;
 import pl.eked.lab.banking.api.controller.HealthController;
 import pl.eked.lab.banking.api.controller.RestController;
+import pl.eked.lab.banking.api.routing.HttpRouter;
 
 class HealthControllerIntegrationTest {
     private static BankingHttpServer server;
@@ -25,7 +26,8 @@ class HealthControllerIntegrationTest {
         List<RestController> controllers = List.of(
             new HealthController()
         );
-        server = new BankingHttpServer(controllers, 0);
+        HttpRouter httpRouter = new HttpRouter(controllers);
+        server = new BankingHttpServer(httpRouter, 0);
         server.start();
         client = HttpClient.newHttpClient();
     }

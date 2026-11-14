@@ -3,10 +3,9 @@ package pl.eked.lab.banking.api;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import pl.eked.lab.banking.api.controller.RestController;
+import pl.eked.lab.banking.api.routing.HttpRouter;
 
 public class BankingHttpServer {
     private static final String IP_ADDRESS = "127.0.0.1";
@@ -16,19 +15,16 @@ public class BankingHttpServer {
     private final HttpServer httpServer;
     private final ExecutorService executorService;
 
-    public BankingHttpServer(List<RestController> restControllers) throws IOException {
-        this(restControllers, PORT);
+    public BankingHttpServer(HttpRouter httpRouter) throws IOException {
+        this(httpRouter, PORT);
     }
 
-    public BankingHttpServer(List<RestController> restControllers, int port) throws IOException {
+    public BankingHttpServer(HttpRouter httpRouter, int port) throws IOException {
         this.httpServer = HttpServer.create();
         this.httpServer.bind(new InetSocketAddress(IP_ADDRESS, port),0);
         executorService = Executors.newFixedThreadPool(CONNECTION_POOL_SIZE);
         httpServer.setExecutor(executorService);
-
-        restControllers.forEach( it ->
-            httpServer.createContext(it.getPath(), it)
-        );
+        httpServer.createContext("/", httpRouter);
     }
 
     public void start() {

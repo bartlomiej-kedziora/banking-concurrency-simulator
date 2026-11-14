@@ -1,7 +1,8 @@
 package pl.eked.lab.banking.api.controller;
 
-import com.sun.net.httpserver.HttpHandler;
+import java.util.List;
+import pl.eked.lab.banking.api.model.HttpRoute;
 
-public interface RestController extends HttpHandler {
-    String getPath();
+public interface RestController {
+    List<HttpRoute> getRoutes();
 }
