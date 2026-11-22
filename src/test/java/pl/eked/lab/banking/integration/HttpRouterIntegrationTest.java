@@ -9,7 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,8 +29,8 @@ class HttpRouterIntegrationTest {
         client = HttpClient.newHttpClient();
     }
 
-    @AfterAll
-    static void afterAll() {
+    @AfterEach
+    void tearDown() {
         server.stop();
     }
 
@@ -122,17 +122,10 @@ class HttpRouterIntegrationTest {
     }
 
     private static class Fixtures {
-        private static void startServer(List<RestController> controllers) {
+        private static void startServer(List<RestController> controllers) throws IOException {
             HttpRouter httpRouter = new HttpRouter(controllers);
-            try {
-                server = new BankingHttpServer(httpRouter, 0);
-                server.start();
-            } catch (IOException ex) {
-                System.out.println("Server not started, because of: " + ex.getMessage());
-            }
-            finally {
-                server.stop();
-            }
+            server = new BankingHttpServer(httpRouter, 0);
+            server.start();
         }
 
         private static HttpRequest creteGetRequestOnPath(String path) {
