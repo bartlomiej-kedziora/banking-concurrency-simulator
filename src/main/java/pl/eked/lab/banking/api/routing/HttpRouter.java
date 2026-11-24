@@ -39,6 +39,7 @@ public class HttpRouter implements HttpHandler {
         this.routes = Map.copyOf(localRoutes);
     }
 
+    @Override
     public void handle(HttpExchange exchange) throws IOException {
         var requestPath = exchange.getRequestURI().getPath();
         var existingPath = routes.get(requestPath);
