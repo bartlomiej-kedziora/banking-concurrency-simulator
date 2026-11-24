@@ -56,7 +56,7 @@ final class RouteNode {
 
     private void ensureNotFrozen() {
         if (frozen) {
-            throw new IllegalStateException("Route has been frozen");
+            throw new IllegalStateException("Route node has been frozen");
         }
     }
 }

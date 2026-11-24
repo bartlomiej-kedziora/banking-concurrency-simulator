@@ -1,5 +1,6 @@
 package pl.eked.lab.banking.api.routing;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -62,6 +63,29 @@ class RouteTreeTest {
         }
 
         @Test
+        void shouldRegisterEmptyRouteTree() {
+            //given
+            List<HttpRoute> givenRoutes = emptyList();
+
+            //when & then
+            assertDoesNotThrow(() -> new RouteTree(givenRoutes));
+        }
+
+        @Test
+        void shouldRegisterRouteWithMultipleParameters() {
+            //given
+            var route = new HttpRoute(
+                HttpMethod.GET,
+                "/accounts/{accountId}/transactions/{transactionId}",
+                _ -> HttpResponse.ok("OK")
+            );
+            var givenRoutes = List.of(route);
+
+            //when & then
+            assertDoesNotThrow(() -> new RouteTree(givenRoutes));
+        }
+
+        @Test
         void shouldRegisterMultipleRoutes() {
             //given
             var route1 = new HttpRoute(
@@ -104,7 +128,7 @@ class RouteTreeTest {
             //given
             var route1 = new HttpRoute(
                 HttpMethod.GET,
-                "/accounts",
+                "/accounts/summary",
                 _ -> HttpResponse.ok("OK")
             );
             var route2 = new HttpRoute(
@@ -135,6 +159,45 @@ class RouteTreeTest {
 
             //when & then
             assertDoesNotThrow(() -> new RouteTree(givenRoutes));
+        }
+
+        @Test
+        void shouldAllowDifferentMethodsForSameDynamicPath() {
+            //given
+            var route1 = new HttpRoute(
+                HttpMethod.GET,
+                "/accounts/{id}",
+                _ -> HttpResponse.ok("OK")
+            );
+            var route2 = new HttpRoute(
+                HttpMethod.POST,
+                "/accounts/{accountId}",
+                _ -> HttpResponse.ok("OK")
+            );
+            var givenRoutes = List.of(route1, route2);
+
+            //when & then
+            assertDoesNotThrow(() -> new RouteTree(givenRoutes));
+        }
+
+        @Test
+        void shouldRejectRepeatedParameterNames() {
+            //given
+            var route = new HttpRoute(
+                HttpMethod.GET,
+                "/accounts/{id}/transactions/{id}",
+                _ -> HttpResponse.ok("OK")
+            );
+            var givenRoutes = List.of(route);
+
+            //when
+            var exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RouteTree(givenRoutes)
+            );
+
+            //then
+            assertEquals("Duplicate path parameter '{id}' in route '/accounts/{id}/transactions/{id}'",  exception.getMessage());
         }
 
         @Test

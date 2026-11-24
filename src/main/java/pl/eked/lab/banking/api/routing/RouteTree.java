@@ -1,6 +1,7 @@
 package pl.eked.lab.banking.api.routing;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import pl.eked.lab.banking.api.model.HttpRoute;
 
@@ -17,8 +18,13 @@ final class RouteTree {
     private void registerRoute(HttpRoute route) {
         var currentNode = this.root;
         var segments = splitPath(route.path());
+        var dynamicSegments = new HashSet<String>();
         for (var segment : segments) {
             if (isDynamicSegment(segment)) {
+                if (!dynamicSegments.add(segment)) {
+                    throw new IllegalArgumentException("Duplicate path parameter '"
+                        + segment + "' in route '" + route.path() + "'");
+                }
                 currentNode = currentNode.getOrCreateDynamicChild();
             } else {
                 currentNode = currentNode.getOrCreateStaticChild(segment);
