@@ -36,6 +36,7 @@ class HttpRouterIntegrationTest {
     void tearDown() {
         if (server != null)
             server.stop();
+        server = null;
     }
 
     @Nested
@@ -273,7 +274,7 @@ class HttpRouterIntegrationTest {
             Fixtures.startServer(givenControllers);
             var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyNoASCII);
 
-            //then
+            //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
 
             //then
