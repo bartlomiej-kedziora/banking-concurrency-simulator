@@ -52,13 +52,14 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.creteGetRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createGetRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
 
             //then
             assertEquals(200, result.statusCode());
+            assertEquals("OK", result.body());
         }
 
         @Test
@@ -74,7 +75,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.creteGetRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createGetRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -96,7 +97,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.creteGetRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createGetRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -122,14 +123,19 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route1, route2);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.creteGetRequestOnPath(requestedPath);
+            var httpGetRequest = Fixtures.createGetRequestOnPath(requestedPath);
+            var httpPostRequest = Fixtures.createPostRequestOnPath(requestedPath, "");
 
             //when
-            var result = client.send(httpRequest, BodyHandlers.ofString());
+            var getResult = client.send(httpGetRequest, BodyHandlers.ofString());
+            var postResult = client.send(httpPostRequest, BodyHandlers.ofString());
 
             //then
-            assertEquals(200, result.statusCode());
-            assertEquals("OK GET", result.body());
+            assertEquals(200, getResult.statusCode());
+            assertEquals("OK GET", getResult.body());
+
+            assertEquals(200, postResult.statusCode());
+            assertEquals("OK POST", postResult.body());
         }
     }
 
@@ -148,7 +154,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePutRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createPutRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -171,7 +177,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePatchRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createPatchRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -193,7 +199,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePatchRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createPatchRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -211,22 +217,23 @@ class HttpRouterIntegrationTest {
         void shouldAcceptEmptyBody() throws IOException, InterruptedException {
             //given
             var requestedPath = "/api/v1/path";
+            var emptyRequestBody = "";
             var route = new HttpRoute(
-                HttpMethod.PUT,
+                HttpMethod.POST,
                 requestedPath,
-                _ -> HttpResponse.status(200)
+                req -> HttpResponse.ok(req.body())
             );
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePutRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, emptyRequestBody);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
 
             //then
             assertEquals(200, result.statusCode());
-            assertEquals("", result.body());
+            assertEquals(emptyRequestBody, result.body());
         }
 
         @Test
@@ -242,7 +249,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBody);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBody);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -264,7 +271,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBodyNoASCII);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyNoASCII);
 
             //then
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -290,13 +297,14 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBodyBelowLimit);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyBelowLimit);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
 
             //then
             assertEquals(200, result.statusCode());
+            assertEquals(requestBodyBelowLimit, result.body());
         }
 
         @Test
@@ -312,13 +320,14 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBodyAtLimit);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyAtLimit);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
 
             //then
             assertEquals(200, result.statusCode());
+            assertEquals(requestBodyAtLimit, result.body());
         }
 
         @Test
@@ -334,7 +343,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBodyAboveLimit);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyAboveLimit);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -361,7 +370,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBodyAboveLimit);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBodyAboveLimit);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -387,7 +396,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBody);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBody);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -409,7 +418,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.cretePostRequestOnPath(requestedPath, requestBody);
+            var httpRequest = Fixtures.createPostRequestOnPath(requestedPath, requestBody);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -431,7 +440,7 @@ class HttpRouterIntegrationTest {
             var routes = List.of(route);
             var givenControllers = List.of(Fixtures.givenController(routes));
             Fixtures.startServer(givenControllers);
-            var httpRequest = Fixtures.creteGetRequestOnPath(requestedPath);
+            var httpRequest = Fixtures.createGetRequestOnPath(requestedPath);
 
             //when
             var result = client.send(httpRequest, BodyHandlers.ofString());
@@ -451,7 +460,7 @@ class HttpRouterIntegrationTest {
             server.start();
         }
 
-        private static HttpRequest creteGetRequestOnPath(String path) {
+        private static HttpRequest createGetRequestOnPath(String path) {
             return HttpRequest.newBuilder()
                 .timeout(Duration.ofSeconds(5))
                 .GET()
@@ -459,7 +468,7 @@ class HttpRouterIntegrationTest {
                 .build();
         }
 
-        private static HttpRequest cretePatchRequestOnPath(String path) {
+        private static HttpRequest createPatchRequestOnPath(String path) {
             return HttpRequest.newBuilder()
                 .timeout(Duration.ofSeconds(5))
                 .method("PATCH", HttpRequest.BodyPublishers.noBody())
@@ -467,7 +476,7 @@ class HttpRouterIntegrationTest {
                 .build();
         }
 
-        private static HttpRequest cretePutRequestOnPath(String path) {
+        private static HttpRequest createPutRequestOnPath(String path) {
             return HttpRequest.newBuilder()
                 .timeout(Duration.ofSeconds(5))
                 .PUT(HttpRequest.BodyPublishers.noBody())
@@ -475,16 +484,12 @@ class HttpRouterIntegrationTest {
                 .build();
         }
 
-        private static HttpRequest cretePostRequestOnPath(String path, String body) {
+        private static HttpRequest createPostRequestOnPath(String path, String body) {
             return HttpRequest.newBuilder()
                 .timeout(Duration.ofSeconds(5))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .uri(URI.create("http://127.0.0.1:" + server.getPort() + path))
                 .build();
-        }
-
-        private static RestController givenController(HttpRoute route) {
-            return () -> List.of(route);
         }
 
         private static RestController givenController(List<HttpRoute> routes) {
